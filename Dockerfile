@@ -1,26 +1,15 @@
-# Use the official Golang image to build the application
-FROM golang:1.21 as builder
+# Dockerfile
+FROM golang:1.21-alpine
 
-# Set the working directory
 WORKDIR /app
 
-# Copy the Go source code
-COPY p3.go .
+COPY go.mod ./
+RUN go mod init datetime-webapp 2>/dev/null || true
 
-# Build the Go application
-RUN go mod init datetime-app && go mod tidy && go build -o app
+COPY . .
 
-# Use a smaller base image for the final container
-FROM alpine:latest
+RUN go build -o /datetime-webapp
 
-# Set the working directory
-WORKDIR /root/
-
-# Copy the compiled application from the builder stage
-COPY --from=builder /app/app .
-
-# Expose the required port
 EXPOSE 8080
 
-# Run the application
-CMD ["./app"]
+CMD ["/datetime-webapp"]
